@@ -83,14 +83,14 @@ height:40px;
 margin-top:10px;
 background:#eee;
 border-radius:10px;
-overflow:hidden;
 position:relative;
+overflow:hidden;
 }
 
 #needle{
 position:absolute;
-left:0;
 top:0;
+left:0;
 width:4px;
 height:40px;
 background:red;
@@ -176,11 +176,11 @@ Calibrating lie detector...
 <div id="needle"></div>
 </div>
 
-<button class="primary" onclick="generate()">Generate</button> <button class="orange" onclick="emergency()">🚨 Emergency</button>
+<button class="primary" onclick="generate()">Generate</button> <button class="orange" onclick="emergency()">🚨 Emergency</button> <button class="orange" onclick="emergencyText()">🚨📩 Emergency Text</button>
 
 <br>
 
-<button onclick="copyExcuse()">Copy</button> <button onclick="shareExcuse()">Share</button> <button onclick="saveFav()">⭐ Favourite</button> <button onclick="makeMeme()">Meme</button>
+<button onclick="copyExcuse()">Copy</button> <button onclick="shareExcuse()">Share</button> <button onclick="saveFav()">⭐ Favourite</button> <button onclick="makeMeme()">Meme</button> <button onclick="sendText()">📩 Send as Text</button>
 
 </div>
 
@@ -200,43 +200,30 @@ Calibrating lie detector...
 
 <script>
 
-/* phrase pools */
-
 const subjects=[
-"my dog","my cat","my laptop","the wifi","my alarm","the bus",
-"my printer","my phone","my car","the train","my charger",
-"my router","the power","my keyboard","my neighbour","my teacher",
-"my scooter","the server","my headphones","my modem"
+"my dog","my cat","my laptop","the wifi","my alarm","the bus","my printer","my phone",
+"my car","the train","my charger","my router","the power","my keyboard","my neighbour",
+"my teacher","my scooter","the server","my headphones","my modem"
 ]
 
 const actions=[
-"broke","exploded","froze","stopped working","crashed",
-"restarted","deleted everything","locked me out",
-"refused to start","updated randomly","fell apart",
-"started overheating","lost connection","corrupted files"
+"broke","exploded","froze","stopped working","crashed","restarted","deleted everything",
+"locked me out","refused to start","updated randomly","fell apart","overheated",
+"lost connection","corrupted files"
 ]
 
 const reasons=[
-"after a power outage","during a storm","because the wifi died",
-"after a weird update","because my cat stepped on it",
-"after my sibling pressed random buttons",
-"because the battery died","because of a glitch",
-"after the server rebooted","because of corrupted files"
+"after a power outage","during a storm","because the wifi died","after a weird update",
+"because my cat stepped on it","after my sibling pressed random buttons",
+"because the battery died","because of a glitch","after the server rebooted"
 ]
 
 const endings=[
-"so I couldn't finish my work.",
-"so everything disappeared.",
-"so I lost my assignment.",
-"so I couldn't submit it.",
-"so I missed the deadline.",
-"so my files vanished.",
-"so nothing would load."
+"so I couldn't finish my work.","so everything disappeared.","so I lost my assignment.",
+"so I couldn't submit it.","so I missed the deadline.","so my files vanished."
 ]
 
 function r(a){return a[Math.floor(Math.random()*a.length)]}
-
-/* storage */
 
 let history=JSON.parse(localStorage.getItem("excuseHistory")||"[]")
 let fav=JSON.parse(localStorage.getItem("excuseFav")||"[]")
@@ -272,7 +259,15 @@ navigator.vibrate?.(60)
 
 }
 
-/* lie detector + believability */
+function emergency(){
+generate()
+}
+
+function emergencyText(){
+generate()
+navigator.vibrate?.(200)
+setTimeout(sendText,500)
+}
 
 function believability(){
 
@@ -281,41 +276,33 @@ let score=Math.floor(Math.random()*50)+50
 document.getElementById("meterFill").style.width=score+"%"
 document.getElementById("score").innerText="Believability: "+score+"%"
 
-let needle=document.getElementById("needle")
-
-needle.style.left=(score)+"%"
+document.getElementById("needle").style.left=score+"%"
 
 }
-
-function emergency(){
-generate()
-}
-
-/* copy/share */
 
 function copyExcuse(){
-
-let text=document.getElementById("excuse").innerText
-
-navigator.clipboard.writeText(text)
-
+navigator.clipboard.writeText(document.getElementById("excuse").innerText)
 alert("Copied!")
-
 }
 
 async function shareExcuse(){
-
 let text=document.getElementById("excuse").innerText
-
-if(navigator.share){
-navigator.share({text})
-}else{
-copyExcuse()
+if(navigator.share){navigator.share({text})}
+else{copyExcuse()}
 }
 
+function sendText(){
+
+let excuse=document.getElementById("excuse").innerText
+
+if(!excuse||excuse==="Press Generate"){
+alert("Generate an excuse first!")
+return
 }
 
-/* favourites */
+window.location.href="sms:?&body="+encodeURIComponent(excuse)
+
+}
 
 function saveFav(){
 
@@ -360,8 +347,6 @@ el.appendChild(div)
 renderFav()
 renderHistory()
 
-/* confetti */
-
 function confetti(){
 
 for(let i=0;i<30;i++){
@@ -381,8 +366,6 @@ setTimeout(()=>c.remove(),2000)
 }
 
 }
-
-/* meme */
 
 function makeMeme(){
 
@@ -419,11 +402,9 @@ let test=line+words[n]+" "
 let width=ctx.measureText(test).width
 
 if(width>maxWidth && n>0){
-
 ctx.fillText(line,x,y)
 line=words[n]+" "
 y+=lineHeight
-
 }else{
 line=test
 }
@@ -433,8 +414,6 @@ line=test
 ctx.fillText(line,x,y)
 
 }
-
-/* fake loading */
 
 let p=0
 
